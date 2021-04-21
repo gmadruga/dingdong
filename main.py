@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from speech import ouvir_microfone, poe_musica
+from speech import pergunta_musica
 
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -13,5 +13,7 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    poe_musica()
+    while True:
+        acertou = pergunta_musica()
+        print(acertou)
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

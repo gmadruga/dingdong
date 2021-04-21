@@ -5,8 +5,10 @@ from pygame import mixer
 import pandas as pd
 import random
 
-def poe_musica():
-    df = pd.read_csv('tabela.csv')
+
+df = pd.read_csv('tabela.csv')
+
+def pergunta_musica():
     index_musica = random.randint(0, len(df.index)-1)
     nome = df.iloc[index_musica,0]
     artista = df.iloc[index_musica,1]
@@ -14,6 +16,23 @@ def poe_musica():
     titulo = df.iloc[index_musica,3]
     duracao = df.iloc[index_musica,4]
     lingua = df.iloc[index_musica,5]
+
+    toca_musica(nome, duracao)
+    textoFalado = ouvir_microfone(artista,titulo)
+
+    print("Você disse: " + textoFalado)
+    if(textoFalado == artista):
+        print('Correto !!')
+        musica_correta()
+        return True
+    else:
+        print('Errado !!')
+        musica_errada()
+        print("A musica é do " + artista)
+        return False
+    return False
+
+def toca_musica(nome, duracao):
     print('SOM NA CAIXA DO CALDEIRÃO')
     mixer.init()
     mixer.music.load('musicas_dingdong/'+nome+'.mp3')
@@ -21,7 +40,7 @@ def poe_musica():
     time.sleep(5)
     mixer.music.stop()
 
-    ouvir_microfone(artista,titulo)
+
 # Funcao responsavel por ouvir e reconhecer a fala
 def ouvir_microfone(artista,titulo):
     # Habilita o microfone para ouvir o usuario
@@ -37,22 +56,20 @@ def ouvir_microfone(artista,titulo):
             # Passa o audio para o reconhecedor de padroes do speech_recognition
             frase = microfone.recognize_google(audio, language='pt-BR')
             # Após alguns segundos, retorna a frase falada
-            print("Você disse: " + frase)
-            if(frase == artista):
-                print('Correto !!')
-                mixer.init()
-                mixer.music.load('react/react.mp3')
-                mixer.music.play(start=0)
-                time.sleep(1)
-                mixer.music.stop()
-            else:
-                print('Errado !!')
-                mixer.music.load('react/react.mp3')
-                mixer.music.play(start=2)
-                time.sleep(1)
-                mixer.music.stop()
-                print("A musica é do " + artista)
-            # Caso nao tenha reconhecido o padrao de fala, exibe esta mensagem
+        # Caso nao tenha reconhecido o padrao de fala, exibe esta mensagem
         except sr.UnkownValueError:
             print("Não entendi")
         return frase
+
+def musica_correta():
+    mixer.init()
+    mixer.music.load('react/react.mp3')
+    mixer.music.play(start=0)
+    time.sleep(1)
+    mixer.music.stop()
+
+def musica_errada():
+    mixer.music.load('react/react.mp3')
+    mixer.music.play(start=2)
+    time.sleep(1)
+    mixer.music.stop()
