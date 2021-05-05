@@ -5,6 +5,7 @@
 # gráficas 'tkinter'
 from tkinter import *
 from tkinter import messagebox
+from PIL import Image,ImageTk  
 import numpy as np
 import speech
 import pandas as pd
@@ -54,7 +55,7 @@ class JanelaBase():
         self.__configurarJanela(
             comprimento, altura, titulo, corFundo
         )
-        
+
         # Criando os atributos necessários
         self.__criarAtributos()
 
@@ -76,6 +77,9 @@ class JanelaBase():
 
         # keep a counter of correct answers
         self.correct=0
+
+        # keep a counter of correct answers
+        self.vidas=5
         
         return None
 
@@ -119,17 +123,34 @@ class JanelaBase():
             font="Helvetica 27 bold"
         )
 
+        self.textoCoracoes = Label(self.janela, 
+            text = "",
+            borderwidth=10,
+            fg="navy blue",
+            justify="center",
+            font="Helvetica 27 bold"
+        )
+
         # Posicionando a caixa de texto considerando a
         # mescalgem de 5 colunas de espaço, tendo 70 px
         # de distância entre a borda desse espaço e a caixa
         self.textoPrincipal.grid(
-            columnspan=1,
+            row=0,
             ipadx=0,
             ipady=0
         )
 
         self.textoPrincipal.configure(font="Helvetica 27 bold")
         self.textoPrincipal.configure(text="Clique play (space)")
+
+        self.textoCoracoes.grid(
+            row=6,
+            ipadx=0,
+            ipady=0
+        )
+
+        self.textoCoracoes.configure(font="Helvetica 27 bold")
+        self.textoCoracoes.configure(text="❤ ❤ ❤ ❤ ❤")
 
         self.textoAcertouErrou = Label(self.janela, 
             text = "",
@@ -143,7 +164,7 @@ class JanelaBase():
         # mescalgem de 5 colunas de espaço, tendo 70 px
         # de distância entre a borda desse espaço e a caixa
         self.textoAcertouErrou.grid(
-            columnspan=2,
+            row=1,
             ipadx=0,
             ipady=0
         )
@@ -346,6 +367,14 @@ class JanelaBase():
         else:
             speech.musica_errada()
             self.textoAcertouErrou.configure(text=f"Errado!! a resposta é {respostaCorreta}")
+            self.vidas -= 1
+            self.textoCoracoes.configure(text="❤ "*self.vidas)
+            if(self.vidas == 0):
+                self.textoPrincipal.configure(text = "Fim de Jogo")
+                self.textoAcertouErrou.configure(text="Você atingiu "+ str(self.correct) + "pontos")
+                #implementar fim de jogo
+                while(True):
+                    pass
             acertou = False
         
         return acertou
@@ -356,8 +385,7 @@ class JanelaBase():
         ):
         tituloFalado = speech.ouvir_microfone()
         self.__checaResposta(tituloFalado, self.titulo)
-        self.textoPrincipal.configure(text="Qual o Autor?")
-        self.textoPrincipal.after(250, self.__respondeAutor, botao2)
+        self.textoPrincipal.after(250, self.cliqueNext, botao2)
         return True
 
     def cliqueNext(
@@ -365,7 +393,7 @@ class JanelaBase():
         botao2
         ):
         botao2.grid()
-        self.textoPrincipal.configure(text = "Clique next (Rarrow)")
+        self.textoPrincipal.configure(text = str(self.correct) + " pontos acumulados")
 
     def __respondeAutor(
         self : object,
@@ -373,7 +401,8 @@ class JanelaBase():
         ):
         autorFalado = speech.ouvir_microfone()
         self.__checaResposta(autorFalado, self.artista)
-        self.textoPrincipal.after(250, self.cliqueNext, botao2)
+        self.textoPrincipal.configure(text="Qual o título?")
+        self.textoPrincipal.after(250, self.__respondeTitulo, botao2)
         return True
 
     def responder(
@@ -387,8 +416,8 @@ class JanelaBase():
         
         # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
         # self.display_text("De quem é a música?", 70, 180)
-        self.textoPrincipal.configure(text="Qual o Título?")
-        self.textoPrincipal.after(250, self.__respondeTitulo, botao2)
+        self.textoPrincipal.configure(text="Qual o intérprete?")
+        self.textoPrincipal.after(250, self.__respondeAutor, botao2)
 
     def __ouvirMusicaEChecarResposta(
         self : object,
@@ -407,7 +436,7 @@ class JanelaBase():
         ):
         
         #if self.numPerguntas==self.data_size:
-        selfbase.__display_result()
+        #selfbase.__display_result()
         selfbase.textoPrincipal.configure(text="Clique play (space)")
         self.botao2.grid_remove()
         self.botao1.grid()
@@ -659,8 +688,8 @@ class FramePlay(JanelaBase):
 
         # Posicionando os botões considerando um grid
         # com 6 linhas e 4 colunas
-        self.botao1           .grid(row=3, column=0)
-        self.botao2           .grid(row=3, column=0)
+        self.botao1           .grid(row=2, column=0)
+        self.botao2           .grid(row=2, column=0)
         self.botao2           .grid_remove()
         
 ##=====================================================================================================================================

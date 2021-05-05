@@ -37,7 +37,7 @@ def toca_musica(nome, duracao):
     mixer.init()
     mixer.music.load('musicas_dingdong/'+nome+'.mp3')
     mixer.music.play(start=random.randint(0,int(duracao)-10))
-    time.sleep(5)
+    time.sleep(8)
     mixer.music.stop()
 
 
