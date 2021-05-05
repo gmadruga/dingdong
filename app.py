@@ -190,21 +190,21 @@ class JanelaBase():
 #=====================================================================================
 
         # Adicionando mais um separador à barra de menu
-        self.barraMenu.add_command(
-            label="★",
-            activebackground=self.barraMenu.cget(
-                "background"
-            )
-        )
+        #self.barraMenu.add_command(
+        #    label="★",
+        #    activebackground=self.barraMenu.cget(
+        #        "background"
+        #    )
+        #)
 #=====================================================================================
         # Adicionando um botao de escolha chamado
         # 'Cientifica', usado para ativar o modo
         # 'cientifica' da calculadora
-        self.barraMenu.add_radiobutton(
-            label='𝓒𝓲𝓮𝓷𝓽𝓲𝓯𝓲𝓬𝓪',
-            indicator=True,
-            command=lambda:self.__mudarJanela('cientifica')
-        )
+        #self.barraMenu.add_radiobutton(
+        #    label='𝓒𝓲𝓮𝓷𝓽𝓲𝓯𝓲𝓬𝓪',
+        #    indicator=True,
+        #    command=lambda:self.__mudarJanela('cientifica')
+        #)
         self.janela.config( bg='light blue')
         #Ativando o modo 'normal' de início
         self.barraMenu.invoke(1)
