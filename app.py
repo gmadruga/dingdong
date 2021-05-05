@@ -21,7 +21,7 @@ class JanelaBase():
 
     # Listando todos os atributos e método públicos
     __all__ = [
-        'expressao', 'conteudoCaixa', 'rodarJanela'
+        'conteudoCaixa', 'rodarJanela'
     ]
 
     def __init__(
@@ -243,21 +243,7 @@ class JanelaBase():
                 self.corFundo
             )
             self.textoPrincipal.configure(font="Helvetica 22 bold")
-
-
-        #Definindo as configurações da janela gráfica quando entrar no frame 'cientifica'
-        #todas as variáveis de configurarJanela já foram definidas anteriormente
-        #como argumento default
-        elif (tipo == 'about'):
-            self.__frame = FrameAbout(self).frame
-            self.__configurarJanela(
-                self.comprimentoPadrao,
-                self.alturaPadrao,
-                self.titulo,
-                self.corFundo
-            )
-            self.textoPrincipal.configure(font="Helvetica 27 bold")
-            
+ 
         # Posicioanando frame
         self.__frame.grid()        
 
