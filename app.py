@@ -622,8 +622,6 @@ class FramePlay(JanelaBase):
             relief=self.relevo,
             bd=self.espessuraBorda,
             command=lambda:JanelaBase._JanelaBase__nextButton(self.base)
-            
-            
         )
         
 ##===========================================================================================================================

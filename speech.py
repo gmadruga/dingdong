@@ -57,8 +57,9 @@ def ouvir_microfone(artista,titulo):
             frase = microfone.recognize_google(audio, language='pt-BR')
             # Após alguns segundos, retorna a frase falada
         # Caso nao tenha reconhecido o padrao de fala, exibe esta mensagem
-        except sr.UnkownValueError:
+        except sr.UnknownValueError:
             print("Não entendi")
+            return ""
         return frase
 
 def musica_correta():
