@@ -290,7 +290,7 @@ class JanelaBase():
         self.janela.bind('<Escape>', self._JanelaBase__perguntarPraSair)
 
         # Habilitando SPACE para rodar musica
-        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta)
+        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta, self.botao1, self.botao2)
 
         # Habilitando SETA DIREITA para proxima musica
         self.janela.bind('<Right>', self._JanelaBase__nextButton)
@@ -334,34 +334,52 @@ class JanelaBase():
     # Método Privado
     def __checaResposta(
         self : object,
-        textoFalado
+        respostaFalada,
+        respostaCorreta
         ):
         acertou = False
-        if(textoFalado == self.artista):
+        if(respostaFalada == respostaCorreta):
             speech.musica_correta()
             self.correct+=1
-            self.textoAcertouErrou.configure(text=f"Correto!! o artista é {self.artista}")
+            self.textoAcertouErrou.configure(text=f"Correto!! a resposta é {respostaCorreta}")
             acertou = True
         else:
             speech.musica_errada()
-            self.textoAcertouErrou.configure(text=f"Errado!! o artista é {self.artista}")
+            self.textoAcertouErrou.configure(text=f"Errado!! a resposta é {respostaCorreta}")
             acertou = False
-
-        self.textoPrincipal.configure(text="Clique next (Rarrow)")
         
         return acertou
 
-    def __pegandoResposta(
-        self : object
+    def __respondeTitulo(
+        self : object,
+        botao2
         ):
-        textoFalado = speech.ouvir_microfone(self.artista,self.titulo)
-        self.__checaResposta(textoFalado)
+        tituloFalado = speech.ouvir_microfone()
+        self.__checaResposta(tituloFalado, self.titulo)
+        self.textoPrincipal.configure(text="Qual o Autor?")
+        self.textoPrincipal.after(250, self.__respondeAutor, botao2)
         return True
 
-    def __ouvirMusicaEChecarResposta(
+    def cliqueNext(
         self : object,
-        event: 'Event' = None
+        botao2
         ):
+        botao2.grid()
+        self.textoPrincipal.configure(text = "Clique next (Rarrow)")
+
+    def __respondeAutor(
+        self : object,
+        botao2
+        ):
+        autorFalado = speech.ouvir_microfone()
+        self.__checaResposta(autorFalado, self.artista)
+        self.textoPrincipal.after(250, self.cliqueNext, botao2)
+        return True
+
+    def responder(
+        self : object,
+        botao2
+    ):
         self.__defineAtributosPorIndiceAleatorio()
 
         speech.toca_musica(self.nome, self.duracao)
@@ -369,8 +387,18 @@ class JanelaBase():
         
         # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
         # self.display_text("De quem é a música?", 70, 180)
-        self.textoPrincipal.configure(text="Qual o Artista?")
-        self.textoPrincipal.after(1000, self.__pegandoResposta)
+        self.textoPrincipal.configure(text="Qual o Título?")
+        self.textoPrincipal.after(250, self.__respondeTitulo, botao2)
+
+    def __ouvirMusicaEChecarResposta(
+        self : object,
+        botao1: object,
+        botao2: object,
+        event: 'Event' = None
+        ):
+        self.textoPrincipal.configure(text="Tocando Musica...")
+        botao1.grid_remove()
+        botao1.after(250, self.responder, botao2)
 
     def __nextButton(
         self : object,
@@ -380,6 +408,8 @@ class JanelaBase():
         #if self.numMusicasTocadas==self.data_size:
         self.__display_result()
         self.textoPrincipal.configure(text="Clique play (space)")
+        self.botao2.grid_remove()
+        self.botao1.grid()
         self.textoAcertouErrou.configure(text="")
 ##===================================================================================================================
 
@@ -605,7 +635,7 @@ class FramePlay(JanelaBase):
             font=self.fonte,               # Fonte do texto
             bd=self.espessuraBorda,        # Espessura da boda
             command=lambda:JanelaBase._JanelaBase__ouvirMusicaEChecarResposta(
-                self.base
+                self.base, self.botao1, self.botao2
                 )                          # Função a ser executada ao clicar no botão
 ##======================================================================================================          
         )        
@@ -613,7 +643,7 @@ class FramePlay(JanelaBase):
         # Criando um botão funcional com o texto '2'
         self.botao2 = Button(
             self.frame,
-            text='next',
+            text='>',
             font=self.fonte,
             fg=self.corBotaoTexto,
             bg=self.corBotaoBg,
@@ -629,7 +659,8 @@ class FramePlay(JanelaBase):
         # Posicionando os botões considerando um grid
         # com 6 linhas e 4 colunas
         self.botao1           .grid(row=3, column=0)
-        self.botao2           .grid(row=3, column=1) 
+        self.botao2           .grid(row=3, column=0)
+        self.botao2           .grid_remove()
         
 ##=====================================================================================================================================
         return None

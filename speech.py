@@ -42,7 +42,7 @@ def toca_musica(nome, duracao):
 
 
 # Funcao responsavel por ouvir e reconhecer a fala
-def ouvir_microfone(artista,titulo):
+def ouvir_microfone():
     # Habilita o microfone para ouvir o usuario
     microfone = sr.Recognizer()
     with sr.Microphone() as source:
