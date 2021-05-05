@@ -72,7 +72,7 @@ class JanelaBase():
         'Criando os atributos necessarios'
         
         # no of musics played
-        self.numMusicasTocadas=0
+        self.numPerguntas=0
 
         # keep a counter of correct answers
         self.correct=0
@@ -290,7 +290,7 @@ class JanelaBase():
         self.janela.bind('<Escape>', self._JanelaBase__perguntarPraSair)
 
         # Habilitando SPACE para rodar musica
-        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta, self.botao1, self.botao2)
+        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta)
 
         # Habilitando SETA DIREITA para proxima musica
         self.janela.bind('<Right>', self._JanelaBase__nextButton)
@@ -311,12 +311,12 @@ class JanelaBase():
     
     # Método Privado
     def __display_result(self):
-        print(self.numMusicasTocadas, self.correct)
-        wrong_count = self.numMusicasTocadas - self.correct
+        print(self.numPerguntas, self.correct)
+        wrong_count = self.numPerguntas - self.correct
         correct = f"Correct: {self.correct}"
         wrong = f"Wrong: {wrong_count}"
 
-        score = int(self.correct / self.numMusicasTocadas * 100)
+        score = int(self.correct / self.numPerguntas * 100)
         result = f"Score: {score}%"
 
         messagebox.showinfo("Result", f"{result}\n{correct}\n{wrong}")
@@ -383,7 +383,7 @@ class JanelaBase():
         self.__defineAtributosPorIndiceAleatorio()
 
         speech.toca_musica(self.nome, self.duracao)
-        self.numMusicasTocadas += 1
+        self.numPerguntas += 2
         
         # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
         # self.display_text("De quem é a música?", 70, 180)
@@ -401,16 +401,17 @@ class JanelaBase():
         botao1.after(250, self.responder, botao2)
 
     def __nextButton(
+        selfbase : object,
         self : object,
         event: 'Event' = None
         ):
         
-        #if self.numMusicasTocadas==self.data_size:
-        self.__display_result()
-        self.textoPrincipal.configure(text="Clique play (space)")
+        #if self.numPerguntas==self.data_size:
+        selfbase.__display_result()
+        selfbase.textoPrincipal.configure(text="Clique play (space)")
         self.botao2.grid_remove()
         self.botao1.grid()
-        self.textoAcertouErrou.configure(text="")
+        selfbase.textoAcertouErrou.configure(text="")
 ##===================================================================================================================
 
 
@@ -651,7 +652,7 @@ class FramePlay(JanelaBase):
             width=self.comprimentoBotao,
             relief=self.relevo,
             bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__nextButton(self.base)
+            command=lambda:JanelaBase._JanelaBase__nextButton(self.base, self)
         )
         
 ##===========================================================================================================================
