@@ -21,11 +21,6 @@ class JanelaBase():
     # Importando um pacote interno do python
     import sys
 
-    # Listando todos os atributos e método públicos
-    __all__ = [
-        'conteudoCaixa', 'rodarJanela'
-    ]
-
     def __init__(
         self       : object,
         comprimento: [int,float] = 425,
@@ -379,7 +374,7 @@ class JanelaBase():
         self.janela.bind('<Escape>', self._JanelaBase__perguntarPraSair)
 
         # Habilitando SPACE para rodar musica
-        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta)
+        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta)(self.botao2)
 
         # Habilitando SETA DIREITA para proxima musica
         self.janela.bind('<Right>', self._JanelaBase__nextButton)
