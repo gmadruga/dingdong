@@ -582,6 +582,38 @@ class JanelaBase():
         self.textoPrincipal.configure(text="Qual o intérprete?")
         self.textoPrincipal.after(250, self.__respondeAutor, botaonext)
 
+    def __contadorParaBotao(
+        self : object,
+        start_time
+    ):
+        max_time = 5
+        if(self.selecionandoJogador):
+            tempo_passado = int(time.time()-start_time)
+            if(tempo_passado >= 5):
+                self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 0s")
+                numJogador = np.random.choice([1,2])
+                if(numJogador == 1):
+                    self.__jogadorSelecionado1()
+                elif(numJogador == 2):
+                    self.__jogadorSelecionado2()
+            elif(tempo_passado >= 4):
+                self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 1s")
+                self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+            elif(tempo_passado >= 3):
+                self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 2s")
+                self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+            elif(tempo_passado >= 2):                
+                self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 3s")
+                self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+            elif(tempo_passado >= 1):
+                self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 4s")
+                self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+            elif(tempo_passado >= 0):
+                self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 5s")
+                self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+            
+
+
     def tocaMusica2Jogadores(
         self : object
     ):
@@ -592,8 +624,11 @@ class JanelaBase():
         
         # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
         # self.display_text("De quem é a música?", 70, 180)
-        self.textoPrincipal.configure(text="Aperte o Botão!!!!")
+        start_time = time.time()
         self.selecionandoJogador = 1;
+
+        self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+
         #self.textoPrincipal.after(250, self.__respondeAutor, botao2)
 
     def __jogadorSelecionado1(
