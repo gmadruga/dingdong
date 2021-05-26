@@ -374,7 +374,7 @@ class JanelaBase():
         self.janela.bind('<Escape>', self._JanelaBase__perguntarPraSair)
 
         # Habilitando SPACE para rodar musica
-        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta)(self.botao2)
+        self.janela.bind('<space>', self._JanelaBase__ouvirMusicaEChecarResposta)
 
         # Habilitando SETA DIREITA para proxima musica
         self.janela.bind('<Right>', self._JanelaBase__nextButton)
