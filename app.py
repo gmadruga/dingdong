@@ -1,7 +1,9 @@
 # ======================================================= #
 # INÍCIO DA CLASSE BASE
 # ======================================================= #
-
+botao2 = "";
+botao1 = "";
+janelaAtual = '1jogador'
 # gráficas 'tkinter'
 from tkinter import *
 from tkinter import messagebox
@@ -34,12 +36,12 @@ class JanelaBase():
 
         #Dados necessarios
         self.df = pd.read_csv('tabela.csv')
-
         #Tornando variáveis 'visíveis' fora do método construtor
         #serão úteis para mudar certas características da janela
         #durante a mudança do frame normal para o frame científica
         #Os argumentos default serão adotados no frame científica
         #No frame normal faremos certas alterações
+        self.numJogadores = 1
         self.comprimentoPadrao = comprimento
         self.alturaPadrao = altura
         self.titulo = titulo
@@ -50,6 +52,8 @@ class JanelaBase():
         'Construindo estrutura da janela base'
         # Instanciando uma janela do Tkinter
         self.janela = Tk()
+
+        self.__create_circle(corFundo=corFundo)
 
        # Definindo as configurações da janela gráfica
         self.__configurarJanela(
@@ -67,11 +71,28 @@ class JanelaBase():
 
         return None
 
+    def __create_circle(self: object, corFundo): #center coordinates, radius
+        self.canvasJogador1 = Canvas(self.janela, width=50, height=50, background=corFundo, highlightthickness=0)
+        self.canvasJogador2 = Canvas(self.janela, width=50, height=50, background=corFundo, highlightthickness=0)
+        self.canvasJogador1.grid(row=5, column=0)
+        self.canvasJogador2.grid(row=5, column=1)
+
+        self.canvasJogador1.grid_remove()
+        self.canvasJogador2.grid_remove()
+
+        # specify bottom-left and top-right as a set of four numbers named # 'xy'
+        xy = 20, 20, 50, 50         
+    
+        self.canvasJogador1.create_oval(xy, fill='red')
+        self.canvasJogador2.create_oval(xy, fill='red')
+
     def __criarAtributos(
         self: object
         ):
         'Criando os atributos necessarios'
         
+        self.pontos2Jogadores = [0,0]
+
         # no of musics played
         self.numPerguntas=0
 
@@ -114,7 +135,14 @@ class JanelaBase():
         # gráfica e direcionando seu conteúdo ao atributo
         # 'equação'
         
-        
+        self.textoTipoJogo = Label(self.janela, 
+            text = "",
+            borderwidth=10,
+            fg="navy blue",
+            justify="center",
+            font="Helvetica 27 bold"
+        )
+
         self.textoPrincipal = Label(self.janela, 
             text = "",
             borderwidth=10,
@@ -134,17 +162,29 @@ class JanelaBase():
         # Posicionando a caixa de texto considerando a
         # mescalgem de 5 colunas de espaço, tendo 70 px
         # de distância entre a borda desse espaço e a caixa
-        self.textoPrincipal.grid(
+        self.textoTipoJogo.grid(
             row=0,
+            columnspan=2,
             ipadx=0,
             ipady=0
         )
+
+        self.textoPrincipal.grid(
+            row=1,
+            columnspan=2,
+            ipadx=0,
+            ipady=0
+        )
+
+        self.textoTipoJogo.configure(font="Helvetica 20")
+        self.textoTipoJogo.configure(text="Modo " + str(self.numJogadores) + " jogador" + ("es" if (self.numJogadores==2) else ""))
 
         self.textoPrincipal.configure(font="Helvetica 27 bold")
         self.textoPrincipal.configure(text="Clique play (space)")
 
         self.textoCoracoes.grid(
-            row=6,
+            row=3,
+            columnspan=2,
             ipadx=0,
             ipady=0
         )
@@ -164,7 +204,8 @@ class JanelaBase():
         # mescalgem de 5 colunas de espaço, tendo 70 px
         # de distância entre a borda desse espaço e a caixa
         self.textoAcertouErrou.grid(
-            row=1,
+            row=2,
+            columnspan=2,
             ipadx=0,
             ipady=0
         )
@@ -181,9 +222,15 @@ class JanelaBase():
         # 'Normal', usado para ativar o modo 'normal'
         # da calculadora
         self.barraMenu.add_radiobutton(
-            label='Play',
+            label='1 jogador',
             indicator=True,
-            command=lambda:self.__mudarJanela('play')
+            command=lambda:self.__mudarJanela('1jogador')
+        )
+
+        self.barraMenu.add_radiobutton(
+            label='2 jogadores',
+            indicator=True,
+            command=lambda:self.__mudarJanela('2jogadores')
         )
 
 
@@ -220,7 +267,7 @@ class JanelaBase():
 
     def __mudarJanela(
         self: object,
-        tipo: str = 'play'
+        tipo: str = '1jogador'
         ):
         'Mudando configuração da janela'
 
@@ -231,8 +278,15 @@ class JanelaBase():
 
         except: pass
 
+        global janelaAtual;
+
+        if(janelaAtual == '1jogador'):
+            tipo = '2jogadores'
+        else:
+            tipo = '1jogador';
         # Atualizando frame
-        if   (tipo == 'play'):
+        if   (tipo == '1jogador'):
+            janelaAtual = '1jogador';
             self.__frame = FramePlay(self).frame
 ##=================================================================================================================
             # Definindo as configurações da janela gráfica quando entrar no frame 'normal'
@@ -243,7 +297,35 @@ class JanelaBase():
                 self.corFundo
             )
             self.textoPrincipal.configure(font="Helvetica 22 bold")
- 
+            self.numJogadores = 1;
+            self.__criarAtributos()
+            self.textoPrincipal.configure(text="Clique play (space)")
+            self.textoCoracoes.grid()
+            self.textoCoracoes.configure(text="❤ ❤ ❤ ❤ ❤")
+            self.textoAcertouErrou.configure(text="")
+            self.textoTipoJogo.configure(text="Modo " + str(self.numJogadores) + " jogador" + ("es" if (self.numJogadores==2) else ""))
+            self.canvasJogador1.grid_remove()
+            self.canvasJogador2.grid_remove()
+        else:
+            janelaAtual = '2jogadores';
+            self.__frame = FrameCientifica(self).frame
+##=================================================================================================================
+            # Definindo as configurações da janela gráfica quando entrar no frame 'normal'
+            self.__configurarJanela(
+                337,
+                325,
+                self.titulo,
+                self.corFundo
+            )
+            self.textoPrincipal.configure(font="Helvetica 22 bold")
+            self.numJogadores = 2;
+            self.__criarAtributos()
+            self.textoPrincipal.configure(text="Clique play (space)")
+            self.textoCoracoes.grid_remove()
+            self.textoAcertouErrou.configure(text="")
+            self.textoTipoJogo.configure(text="Modo " + str(self.numJogadores) + " jogador" + ("es" if (self.numJogadores==2) else ""))
+            self.canvasJogador1.grid()
+            self.canvasJogador2.grid()
         # Posicioanando frame
         self.__frame.grid()        
 
@@ -302,6 +384,15 @@ class JanelaBase():
         # Habilitando SETA DIREITA para proxima musica
         self.janela.bind('<Right>', self._JanelaBase__nextButton)
 
+        # Habilitando SETA DIREITA para proxima musica
+        self.janela.bind('1', self._JanelaBase__jogadorSelecionado1)
+
+        # Habilitando SETA DIREITA para proxima musica
+        self.janela.bind('2', self._JanelaBase__jogadorSelecionado2)
+
+        # Habilitando SETA DIREITA para proxima musica
+        self.janela.bind('m', self._JanelaBase__mudarJanela)
+
         return None
 
     # Método Público
@@ -342,12 +433,13 @@ class JanelaBase():
     def __checaResposta(
         self : object,
         respostaFalada,
-        respostaCorreta
+        respostaCorreta,
+        pontosGanhos
         ):
         acertou = False
         if(respostaFalada == respostaCorreta):
             speech.musica_correta()
-            self.correct+=1
+            self.correct+=pontosGanhos
             self.textoAcertouErrou.configure(text=f"Correto!! a resposta é {respostaCorreta}")
             acertou = True
         else:
@@ -370,30 +462,120 @@ class JanelaBase():
         botao2
         ):
         tituloFalado = speech.ouvir_microfone()
-        self.__checaResposta(tituloFalado, self.titulo)
+        self.__checaResposta(tituloFalado, self.titulo, 2)
         self.textoPrincipal.after(250, self.cliqueNext, botao2)
+        return True
+
+    def __respondeTitulo2Jogadores(
+        self : object,
+        botaonext,
+        numJog,
+        jogadorQueApertouOBotao
+        ):
+        tituloFalado = speech.ouvir_microfone()
+        acertou = self.__checaResposta2jogadores(tituloFalado, self.titulo, numJog, 'titulo')
+        
+        if(numJog!=jogadorQueApertouOBotao):
+            self.textoPrincipal.after(250, self.cliqueNext2Jogadores, botaonext)
+        elif(acertou):
+            self.textoPrincipal.after(250, self.cliqueNext2Jogadores, botaonext)
+        else:
+            numJogNovo = 3 - numJog
+            self.textoAcertouErrou.configure(text="Errou! Jogador "+str(numJogNovo)+" responda")
+            self.textoPrincipal.after(250, self.__respondeTitulo2Jogadores, botaonext, numJogNovo, jogadorQueApertouOBotao)
+
         return True
 
     def cliqueNext(
         self : object,
-        botao2
+        botaonext
         ):
-        botao2.grid()
+        botaonext.grid()
         self.textoPrincipal.configure(text = str(self.correct) + " pontos acumulados")
+    
+    def cliqueNext2Jogadores(
+        self : object,
+        botaonext
+        ):
+        botaonext.grid()
+        self.textoPrincipal.configure(text = " pontos: " + str(self.pontos2Jogadores[0]) + " / " + str(self.pontos2Jogadores[1]))
+        # specify bottom-left and top-right as a set of four numbers named # 'xy'
+        xy = 20, 20, 50, 50
+        self.canvasJogador1.create_oval(xy, fill='red')
+        self.canvasJogador2.create_oval(xy, fill='red')
 
     def __respondeAutor(
         self : object,
-        botao2
+        botaonext,
+        numJog: int = 1,
         ):
         autorFalado = speech.ouvir_microfone()
-        self.__checaResposta(autorFalado, self.artista)
+        
+        self.__checaResposta(autorFalado, self.artista, 1)
         self.textoPrincipal.configure(text="Qual o título?")
-        self.textoPrincipal.after(250, self.__respondeTitulo, botao2)
+        self.textoPrincipal.after(250, self.__respondeTitulo, botaonext)
         return True
+
+    def __respondeAutor2Jogadores(
+        self : object,
+        botaonext,
+        numJog: int,
+        jogadorQueApertouOBotao: int
+        ):
+        autorFalado = speech.ouvir_microfone()
+        
+        acertou = self.__checaResposta2jogadores(autorFalado, self.artista, numJog, 'autor')
+        if(jogadorQueApertouOBotao != numJog):
+            numJogNovo = 3-numJog
+            self.textoPrincipal.configure(text="Qual o título?")
+            self.textoPrincipal.after(250, self.__respondeTitulo2Jogadores, botaonext, numJogNovo, jogadorQueApertouOBotao)
+        elif(acertou):
+            self.textoPrincipal.configure(text="Qual o título?")
+            self.textoPrincipal.after(250, self.__respondeTitulo2Jogadores, botaonext, numJog, jogadorQueApertouOBotao)
+        else:
+            numJogNovo = 3-numJog
+            self.textoPrincipal.configure(text="Qual o intérprete?")
+            self.textoAcertouErrou.configure(text="Errou! Jogador " + str(numJogNovo)+" responda")
+            self.textoPrincipal.after(250, self.__respondeAutor2Jogadores, botaonext, numJogNovo, jogadorQueApertouOBotao)
+
+        return True
+
+    def __checaResposta2jogadores(
+        self : object,
+        respostaFalada,
+        respostaCorreta,
+        numJog: int,
+        tipoPergunta = 'autor'
+    ):
+        if(tipoPergunta == 'autor'):
+            pontosGanhos = 1
+        elif(tipoPergunta == 'titulo'):
+            pontosGanhos = 2
+
+        acertou = False
+        if(respostaFalada == respostaCorreta):
+            speech.musica_correta()
+            self.pontos2Jogadores[numJog-1] = self.pontos2Jogadores[numJog-1] + pontosGanhos
+            self.textoAcertouErrou.configure(text=f"Correto!! a resposta é {respostaCorreta},\n jogador {numJog} responda")
+            acertou = True
+            if(self.pontos2Jogadores[numJog-1] >= 15):
+                self.textoPrincipal.configure(text = "Fim de Jogo")
+                self.textoAcertouErrou.configure(text=f"Jogador {numJog} atingiu "+ str(self.pontos2Jogadores[numJog-1]) + "pontos")
+                #implementar fim de jogo
+                while(True):
+                    pass
+                    
+        else:
+            speech.musica_errada()
+            self.textoAcertouErrou.configure(text=f"Errado!! a resposta é {respostaCorreta},\n jogador {3-numJog} responda")
+            acertou = False
+
+        return acertou
+
 
     def responder(
         self : object,
-        botao2
+        botaonext
     ):
         self.__defineAtributosPorIndiceAleatorio()
 
@@ -403,17 +585,57 @@ class JanelaBase():
         # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
         # self.display_text("De quem é a música?", 70, 180)
         self.textoPrincipal.configure(text="Qual o intérprete?")
-        self.textoPrincipal.after(250, self.__respondeAutor, botao2)
+        self.textoPrincipal.after(250, self.__respondeAutor, botaonext)
+
+    def tocaMusica2Jogadores(
+        self : object
+    ):
+        self.__defineAtributosPorIndiceAleatorio()
+
+        speech.toca_musica(self.nome, self.duracao)
+        self.numPerguntas += 2
+        
+        # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
+        # self.display_text("De quem é a música?", 70, 180)
+        self.textoPrincipal.configure(text="Aperte o Botão!!!!")
+        self.selecionandoJogador = 1;
+        #self.textoPrincipal.after(250, self.__respondeAutor, botao2)
+
+    def __jogadorSelecionado1(
+        self : object,
+        event: 'Event' = None
+    ):
+        if(self.selecionandoJogador):
+            self.selecionandoJogador=0
+            xy = 20, 20, 50, 50
+            self.canvasJogador1.create_oval(xy, fill='green')
+            self.textoPrincipal.configure(text="Qual o intérprete?")
+            self.textoAcertouErrou.configure(text="Jogador 1 responda")
+            self.textoAcertouErrou.after(250, self.__respondeAutor2Jogadores, botao2, 1, 1)  
+    
+    def __jogadorSelecionado2(
+        self : object,
+        event: 'Event' = None
+    ):
+        if(self.selecionandoJogador):
+            self.selecionandoJogador=0
+            xy = 20, 20, 50, 50
+            self.canvasJogador2.create_oval(xy, fill='green')
+            self.textoAcertouErrou.configure(text="Jogador 2 responda")
+            self.textoPrincipal.configure(text="Qual o intérprete?")
+            self.textoPrincipal.after(250, self.__respondeAutor2Jogadores, botao2, 2, 2)  
+
 
     def __ouvirMusicaEChecarResposta(
         self : object,
-        botao1: object,
-        botao2: object,
         event: 'Event' = None
         ):
         self.textoPrincipal.configure(text="Tocando Musica...")
         botao1.grid_remove()
-        botao1.after(250, self.responder, botao2)
+        if(self.numJogadores==1):
+            botao1.after(250, self.responder, botao2)
+        else:
+            botao1.after(250, self.tocaMusica2Jogadores)
 
     def __nextButton(
         selfbase : object,
@@ -424,8 +646,8 @@ class JanelaBase():
         #if self.numPerguntas==self.data_size:
         #selfbase.__display_result()
         selfbase.textoPrincipal.configure(text="Clique play (space)")
-        self.botao2.grid_remove()
-        self.botao1.grid()
+        botao2.grid_remove()
+        botao1.grid()
         selfbase.textoAcertouErrou.configure(text="")
 ##===================================================================================================================
 
@@ -651,7 +873,7 @@ class FramePlay(JanelaBase):
             font=self.fonte,               # Fonte do texto
             bd=self.espessuraBorda,        # Espessura da boda
             command=lambda:JanelaBase._JanelaBase__ouvirMusicaEChecarResposta(
-                self.base, self.botao1, self.botao2
+                self.base
                 )                          # Função a ser executada ao clicar no botão
 ##======================================================================================================          
         )        
@@ -669,13 +891,16 @@ class FramePlay(JanelaBase):
             bd=self.espessuraBorda,
             command=lambda:JanelaBase._JanelaBase__nextButton(self.base, self)
         )
-        
+        global botao1
+        global botao2
+        botao2 = self.botao2
+        botao1 = self.botao1
 ##===========================================================================================================================
 
         # Posicionando os botões considerando um grid
         # com 6 linhas e 4 colunas
-        self.botao1           .grid(row=2, column=0)
-        self.botao2           .grid(row=2, column=0)
+        self.botao1           .grid(row=4, columnspan=2)
+        self.botao2           .grid(row=4, columnspan=2)
         self.botao2           .grid_remove()
         
 ##=====================================================================================================================================
@@ -770,26 +995,49 @@ class FramePlay(JanelaBase):
 
 class FrameCientifica(FramePlay):
     '''Classe referente às configuracoes de
-       botoes do modo cientifico'''
+       botoes do modo normal'''
 
     def __init__(self, base):
-        'Construtor'
-
+        'Construindo a estrutura do frame'
+        
         # Agregando os metodos e atributos
-        # da classe "FrameNormal"
-        FrameNormal.__init__(self, base)
+        # da classe "FramePlay"
+        FramePlay.__init__(self, base)
 
-        # Cirando e posicionando os botoes
+        # Criando os widgets
         self.__criarWidgets()
 
         # Habilitando acoes do teclado/mouse
-        self.__definirAcoesBotoesCientifica()
-        # Habilitando acoes do teclado/mouse
-        self._FrameNormal__definirAcoesBotoes()
+        self.__definirAcoesBotoes()
         
-##=============================================================================================================
-    #redefinindo o metodo de dicas para o frame científica
-    def limparDicaCien(
+        return None
+
+
+    # Método Privado
+    def __configurarBotao(
+        self           : object,
+        corTexto       : str,
+        corFundo       : str,
+        altura         : [int,float],
+        comprimento    : [int,float],
+        fonte          : str,
+        relevo         : [int,float],
+        espessuraBorda : [int,float]
+        ):
+        'Configurando alguns parâmetros dos botoes'
+
+        # Criando atributos privados com os parametros
+        self.corBotaoTexto    = corTexto
+        self.corBotaoBg       = corFundo
+        self.alturaBotao      = altura
+        self.comprimentoBotao = comprimento
+        self.fonte            = fonte
+        self.relevo           = relevo
+        self.espessuraBorda   = espessuraBorda
+
+        return None
+
+    def limparDica(
         self : object,
         event: 'Event_object'
         ):
@@ -800,7 +1048,7 @@ class FrameCientifica(FramePlay):
 
         return None
 
-    def mostrarDicaCien(
+    def mostrarDica(
         self    : object,
         elemento: [int,str],
         widget  : 'Widget_object'
@@ -809,22 +1057,9 @@ class FrameCientifica(FramePlay):
 
         # Estrutura com as dicas
         respectivaDica = {
-            'cos': 'Cosseno- Não esquecer de fechar o parenteses-(argumento em radiano)',
-            'sen': 'Seno- Não esquecer de fechar o parenteses-(argumento em radiano)',
-            'tan': 'Tangente- Não esquecer de fechar o parenteses-(aqgumento em radiano)',
-            'log': 'Logaritmo na base 10- Não esquecer de fechar o parenteses',
-            'ln' : 'Logaritmo natural- Não esquecer de fechar o parenteses',
-            '√'  : 'Raiz quadrada',
-            'x²' : 'Quadrado',
-            'xʸ' : 'Eleva a "y"',
-            '1/x': 'Inverso',
-            'n!' : 'Fatorial',
-            'exp': 'Exponecial',
-            '|x|': 'Módulo',
-            '10ⁿ': 'potencia na base 10',
-            '2ⁿ' : 'potencia na base 2',
-            'ⁿ√' : 'Raíz n-ésima. Não esquecer de fechar o parêntese',
-            '⌫' : 'Apaga o último item da expressão'
+            1  : 'Número 1',
+            2  : 'Número 2'
+##=====================================================================================================            
         }[elemento]
 
 
@@ -837,566 +1072,73 @@ class FrameCientifica(FramePlay):
 
         return None
 
-    def __definirAcoesBotoesCientifica(
+    def __definirAcoesBotoes(
         self: object
         ):
         'Definindo as ações de teclado/mouse'
 
-        # Habilitando a dica referente ao botao 
-        self.botaoCosseno.bind      ("<Enter>",lambda event: self.mostrarDicaCien('cos',self.botaoCosseno))
-        self.botaoSeno.bind         ("<Enter>",lambda event: self.mostrarDicaCien('sen',self.botaoSeno))
-        self.botaoTangente.bind     ("<Enter>",lambda event: self.mostrarDicaCien('tan',self.botaoTangente))
-        self.botaoLogaritmo.bind    ("<Enter>",lambda event: self.mostrarDicaCien('log',self.botaoLogaritmo))
-        self.botaoLogNatural.bind   ("<Enter>",lambda event: self.mostrarDicaCien('ln',self.botaoLogNatural))
-        self.botaoRaiz.bind         ("<Enter>",lambda event: self.mostrarDicaCien('√',self.botaoRaiz))
-        self.botaoQuadrado.bind     ("<Enter>",lambda event: self.mostrarDicaCien('x²',self.botaoQuadrado))
-        self.botaoElevado.bind      ("<Enter>",lambda event: self.mostrarDicaCien('xʸ',self.botaoElevado))
-        self.botaoInverte.bind      ("<Enter>",lambda event: self.mostrarDicaCien('1/x',self.botaoInverte))
-        self.botaoFatorial.bind     ("<Enter>",lambda event: self.mostrarDicaCien('n!',self.botaoFatorial))
-        self.botaoExponencial.bind  ("<Enter>",lambda event: self.mostrarDicaCien('exp',self.botaoExponencial))
-        self.botaoModulo.bind       ("<Enter>",lambda event: self.mostrarDicaCien('|x|',self.botaoModulo))
-        self.botaoPotencia_10.bind  ("<Enter>",lambda event: self.mostrarDicaCien('10ⁿ',self.botaoPotencia_10))
-        self.botaoPotencia_2.bind   ("<Enter>",lambda event: self.mostrarDicaCien('2ⁿ',self.botaoPotencia_2))
-        self.botaoRaiz_n.bind       ("<Enter>",lambda event: self.mostrarDicaCien('ⁿ√',self.botaoRaiz_n))
-        self.botaoApagar.bind       ("<Enter>",lambda event: self.mostrarDicaCien('⌫',self.botaoApagar))
+        # Habilitando a dica referente ao botao        
+        self.botao1.bind       ("<Enter>",lambda event: self.mostrarDica(1,self.botao1))
+        self.botao2.bind       ("<Enter>",lambda event: self.mostrarDica(2,self.botao2))
 
-       # Desabilitando dz
-        self.botaoCosseno.bind      ("<Leave>",self.limparDicaCien)
-        self.botaoSeno.bind         ("<Leave>",self.limparDicaCien)
-        self.botaoTangente.bind     ("<Leave>",self.limparDicaCien)
-        self.botaoLogaritmo.bind    ("<Leave>",self.limparDicaCien)
-        self.botaoLogNatural.bind   ("<Leave>",self.limparDicaCien)
-        self.botaoRaiz.bind         ("<Leave>",self.limparDicaCien)
-        self.botaoQuadrado.bind     ("<Leave>",self.limparDicaCien)
-        self.botaoElevado.bind      ("<Leave>",self.limparDicaCien)
-        self.botaoInverte.bind      ("<Leave>",self.limparDicaCien)
-        self.botaoFatorial.bind     ("<Leave>",self.limparDicaCien)
-        self.botaoExponencial.bind  ("<Leave>",self.limparDicaCien)
-        self.botaoModulo.bind       ("<Leave>",self.limparDicaCien)
-        self.botaoPotencia_10.bind  ("<Leave>",self.limparDicaCien)
-        self.botaoPotencia_2.bind   ("<Leave>",self.limparDicaCien)
-        self.botaoRaiz_n.bind       ("<Leave>",self.limparDicaCien)
-        self.botaoApagar.bind            ("<Leave>",self.limparDicaCien)
+        
+##============================================================================================================================
+        # Desabilitando dz
+        self.botao1.bind       ("<Leave>",self.limparDica)
+        self.botao2.bind       ("<Leave>",self.limparDica)
+
+##================================================================================================================================
         return None
-        #=========================================================================================================================================================
-
 
 
     def __criarWidgets(self):
-        'Criando widgets deste frame'
+        'Criando os widgets deste frame'
         
-        # Criando um botão funcional com o texto '1'
+"""         # Criando um botão funcional com o texto '1'
         self.botao1 = Button(
-            self.frame,                  # Onde será colocado o botão
-            text='1',                    # Texto a ser exibido no botão
-            fg=self.corBotaoTexto,       # Cor do texto
-            bg=self.corBotaoBg,          # Cor de fundo do botão
-            height=self.alturaBotao,     # Altura do botão
-            width=self.comprimentoBotao, # Comprimento do botão
-            relief= self.relevo,         # Estilo de relevo 
-            bd= self.espessuraBorda,     # Espessura da borda do botão
-            font= self.fonte,            # Fonte do texto inserido no botão
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,1) # Função a ser executada ao clicar no botão
-        )
+            self.frame,                    # Onde será colocado o botão
+            text='Play',                     # Texto a ser exibido no botão
+            fg=self.corBotaoTexto,         # Cor do texto
+            bg=self.corBotaoBg,            # Cor de fundo do botão
+            height=self.alturaBotao,       # Altura do botão
+            width=self.comprimentoBotao,   # Comprimento do botão
+##=====================================================================================================
+            relief=self.relevo,            # Estilo de relevo
+            font=self.fonte,               # Fonte do texto
+            bd=self.espessuraBorda,        # Espessura da boda
+            command=lambda:JanelaBase._JanelaBase__ouvirMusicaEChecarResposta(
+                self.base, self.botao1, self.botao2
+                )                          # Função a ser executada ao clicar no botão
+##======================================================================================================          
+        )        
 
         # Criando um botão funcional com o texto '2'
         self.botao2 = Button(
             self.frame,
-            text='2',
+            text='>',
             font=self.fonte,
             fg=self.corBotaoTexto,
             bg=self.corBotaoBg,
             height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,2)
-        )
-
-        # Criando um botão funcional com o texto '3'
-        self.botao3 = Button(
-            self.frame,
-            text='3',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,3)
-        )
-
-        # Criando um botão funcional com o texto '4'
-        self.botao4 = Button(
-            self.frame,
-            text='4',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,4)
-        )
-
-        # Criando um botão funcional com o texto '5'
-        self.botao5 = Button(
-            self.frame,
-            text='5',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,5)
-        )
-
-        # Criando um botão funcional com o texto '6'
-        self.botao6 = Button(
-            self.frame,
-            text='6',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,6)
-        )
-
-        # Criando um botão funcional com o texto '7'
-        self.botao7 = Button(
-            self.frame,
-            text='7',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,7)
-        )
-
-        # Criando um botão funcional com o texto '8'
-        self.botao8 = Button(
-            self.frame,
-            text='8',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,8)
-        )
-
-        # Criando um botão funcional com o texto '9'
-        self.botao9 = Button(
-            self.frame,
-            text='9',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,9)
-        )
-
-        # Criando um botão funcional com o texto '0'
-        self.botao0 = Button(
-            self.frame,
-            text='O',
-            font=self.fonte,
-            fg=self.corBotaoTexto,
-            bg=self.corBotaoBg,
-            height=self.alturaBotao,
-            bd=self.espessuraBorda,
-            relief=self.relevo,
-            width=self.comprimentoBotao,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,0)
-        )
-
-        # Criando um botão funcional com o texto '+'
-        self.botaoPlus = Button(
-            self.frame,
-            text='➕',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
             width=self.comprimentoBotao,
             relief=self.relevo,
             bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'+')
+            command=lambda:JanelaBase._JanelaBase__nextButton(self.base, self)
         )
-
-        # Criando um botão funcional com o texto '-'
-        self.botaoMinus = Button(
-            self.frame,
-            text='➖',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'-')
-        )
-
-        # Criando um botão funcional com o texto '*'
-        self.botaoMultiply = Button(
-            self.frame,
-            text='X',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'x')
-        )
-
-        # Criando um botão funcional com o texto '/'
-        self.botaoDivide = Button(
-            self.frame,
-            text='➗',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'÷')
-        )
-
-        # Criando um botão funcional com o texto '.'
-        self.botaoDecimal= Button(
-            self.frame,
-            text=',',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'.')
-        )
-
-
-##===================================================================================================================================
-
-        # Criando um botão funcional com o texto 'cosseno'
-        self.botaoCosseno = Button(
-            self.frame,
-            text='cos',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'cos(')
-        )
-
-        # Criando um botão funcional com o texto 'Tangente'
-        self.botaoTangente = Button(
-            self.frame,
-            text='tan',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'tan(')
-        )
-
-
-         # Criando um botão funcional com o texto 'Seno'
-        self.botaoSeno = Button(
-            self.frame,
-            text='sin',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'sin(')
-        )
-
-         # Criando um botão funcional com o texto '('
-
-        self.botaoParentese1 = Button(
-            self.frame,
-            text='(',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'(')
-        )
-
-        # Criando um botão funcional com o texto ')'
-
-        self.botaoParentese2 = Button(
-            self.frame,
-            text=')',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,')')
-        )
-
-        # Criando um botão funcional com o texto '1/x'
-
-        self.botaoInverte = Button(
-            self.frame,
-            text="1/x",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda: JanelaBase._JanelaBase__inverte(self.base)
-        )
-
-        # Criando um botão funcional  'raiz'
-
-        self.botaoRaiz = Button(
-            self.frame,
-            text='√',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'sqrt(')
-        )
-
-        # Criando um botão funcional 'quadrado'
-
-        self.botaoQuadrado = Button(
-            self.frame,
-            text='x²',
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'**2')
-        )
-
         
-        # Criando um botão funcional com o texto 'elevado'
+        botao2 = self.botao2
+        botao1 = self.botao1
 
-        self.botaoElevado = Button(
-            self.frame,
-            text="xʸ",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__elevado(self.base)
-        )
-
-        # Criando um botão funcional 'fatorial'
-
-        self.botaoFatorial = Button(
-            self.frame,
-            text="n!",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__fatora(self.base)
-        )
-
-         # Criando um botão funcional 'exponencial'
-
-        self.botaoExponencial = Button(
-            self.frame,
-            text="exp",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'e**')
-        )
-
-        # Criando um botão funcional 'log'
-
-        self.botaoLogaritmo = Button(
-            self.frame,
-            text="log",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'log(')
-        )
-
-         # Criando um botão funcional 'ln'
-
-        self.botaoLogNatural = Button(
-            self.frame,
-            text="ln",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'ln(')
-        )
-
-        # Criando um botão funcional 'potencia de 10'
-
-        self.botaoPotencia_10 = Button(
-            self.frame,
-            text="10ⁿ",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'10**')
-        )
-
-        # Criando um botão funcional 'potencia de 2 '
-
-        self.botaoPotencia_2 = Button(
-            self.frame,
-            text="2ⁿ",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'2**')
-        )
-
-
-        # Criando um botão funcional 'raiz de n'
-
-        self.botaoRaiz_n = Button(
-            self.frame,
-            text="ⁿ√",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'**(1/')
-        )
-
-         # Criando um botão funcional 'modulo'
-
-        self.botaoModulo = Button(
-            self.frame,
-            text="|x|",
-            font=self.fonte,
-            fg='navy blue',
-            bg='light blue',
-            height=self.alturaBotao,
-            width=self.comprimentoBotao,
-            relief=self.relevo,
-            bd=self.espessuraBorda,
-            command=lambda:JanelaBase._JanelaBase__adicionaValor(self.base,'abs(')
-        )
-
-##===================================================================================================================================
+##===========================================================================================================================
 
         # Posicionando os botões considerando um grid
-        # com 8 linhas e 4 colunas
-        self.botao1            .grid(row=3, column=1)
-        self.botao2            .grid(row=3, column=2)
-        self.botao3            .grid(row=3, column=3)
-        self.botao4            .grid(row=4, column=1)
-        self.botao5            .grid(row=4, column=2)
-        self.botao6            .grid(row=4, column=3)
-        self.botao7            .grid(row=5, column=1)
-        self.botao8            .grid(row=5, column=2)
-        self.botao9            .grid(row=5, column=3)
-        self.botao0            .grid(row=6, column=1)
-        self.botaoPlus         .grid(row=3, column=0)
-        self.botaoMinus        .grid(row=4, column=0)
-        self.botaoMultiply     .grid(row=5, column=0)
-        self.botaoDivide       .grid(row=6, column=0)
-        self.botaoEqual        .grid(row=2, column=4)
-        self.botaoClear        .grid(row=6, column=2)
-        self.botaoDecimal      .grid(row=2, column=0)
-##===================================================================================================================
-        self.botaoCosseno      .grid(row=7, column=1)
-        self.botaoSeno         .grid(row=7, column=2)
-        self.botaoTangente     .grid(row=7, column=3)
-        self.botaoParentese1   .grid(row=2, column=1)
-        self.botaoParentese2   .grid(row=2, column=2)
-        self.botaoRaiz         .grid(row=8, column=2)
-        self.botaoInverte      .grid(row=6, column=4)
-        self.botaoElevado      .grid(row=3, column=4)
-        self.botaoQuadrado     .grid(row=4, column=4)
-        self.botaoFatorial     .grid(row=5, column=4)
-        self.botaoApagar       .grid(row=6, column=3)
-        self.botaoLogaritmo    .grid(row=7, column=4)
-        self.botaoLogNatural   .grid(row=8, column=4)
-        self.botaoPotencia_10  .grid(row=8, column=0)
-        self.botaoExponencial  .grid(row=8, column=1)
-        self.botaoRaiz_n       .grid(row=8, column=3)
-        self.botaoModulo       .grid(row=2, column=3)
-        self.botaoPotencia_2   .grid(row=7, column=0)
-
-        return None
-
-##===================================================================================================================
+        # com 6 linhas e 4 colunas
+        self.botao1           .grid(row=4, columnspan=2)
+        self.botao2           .grid(row=4, columnspan=2)
+        self.botao2           .grid_remove() """
+        
+##=====================================================================================================================================
+        #return None
        
 
 
