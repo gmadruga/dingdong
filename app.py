@@ -69,8 +69,8 @@ class JanelaBase():
     def __create_circle(self: object, corFundo): #center coordinates, radius
         self.canvasJogador1 = Canvas(self.janela, width=50, height=50, background=corFundo, highlightthickness=0)
         self.canvasJogador2 = Canvas(self.janela, width=50, height=50, background=corFundo, highlightthickness=0)
-        self.canvasJogador1.grid(row=5, column=0)
-        self.canvasJogador2.grid(row=5, column=1)
+        self.canvasJogador1.grid(row=4, column=0)
+        self.canvasJogador2.grid(row=4, column=1)
 
         self.canvasJogador1.grid_remove()
         self.canvasJogador2.grid_remove()
@@ -134,6 +134,7 @@ class JanelaBase():
             text = "",
             borderwidth=10,
             fg="navy blue",
+            bg='light blue',
             justify="center",
             font="Helvetica 27 bold"
         )
@@ -142,6 +143,7 @@ class JanelaBase():
             text = "",
             borderwidth=10,
             fg="navy blue",
+            bg='light blue',
             justify="center",
             font="Helvetica 27 bold"
         )
@@ -150,6 +152,7 @@ class JanelaBase():
             text = "",
             borderwidth=10,
             fg="navy blue",
+            bg='light blue',
             justify="center",
             font="Helvetica 27 bold"
         )
@@ -178,7 +181,7 @@ class JanelaBase():
         self.textoPrincipal.configure(text="Clique play (space)")
 
         self.textoCoracoes.grid(
-            row=3,
+            row=2,
             columnspan=2,
             ipadx=0,
             ipady=0
@@ -191,6 +194,7 @@ class JanelaBase():
             text = "",
             borderwidth=10,
             fg="navy blue",
+            bg='light blue',
             justify="center",
             font="Helvetica 27 bold"
         )
@@ -199,7 +203,7 @@ class JanelaBase():
         # mescalgem de 5 colunas de espaço, tendo 70 px
         # de distância entre a borda desse espaço e a caixa
         self.textoAcertouErrou.grid(
-            row=2,
+            row=3,
             columnspan=2,
             ipadx=0,
             ipady=0
@@ -935,8 +939,8 @@ class FramePlay(JanelaBase):
 
         # Posicionando os botões considerando um grid
         # com 6 linhas e 4 colunas
-        self.botao1           .grid(row=4, columnspan=2)
-        self.botao2           .grid(row=4, columnspan=2)
+        self.botao1           .grid(row=5, column=1, pady=20)
+        self.botao2           .grid(row=5, column=1, pady=20)
         self.botao2           .grid_remove()
         
 ##=====================================================================================================================================
