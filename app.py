@@ -589,7 +589,7 @@ class JanelaBase():
         max_time = 5
         if(self.selecionandoJogador):
             tempo_passado = int(time.time()-start_time)
-            if(tempo_passado >= 5):
+            if(tempo_passado >= max_time):
                 self.textoPrincipal.configure(text=f"Aperte o Botão!!!! 0s")
                 numJogador = np.random.choice([1,2])
                 if(numJogador == 1):
@@ -613,6 +613,11 @@ class JanelaBase():
                 self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
             
 
+    def __setSelecionandoJogador(
+        self : object
+    ):
+        self.selecionandoJogador = 1
+        print(self.selecionandoJogador)
 
     def tocaMusica2Jogadores(
         self : object
@@ -625,9 +630,10 @@ class JanelaBase():
         # Problema: Apenas mostra o texto depois que o reconhecimento da fala - (trava durante o assincronismo?).
         # self.display_text("De quem é a música?", 70, 180)
         start_time = time.time()
-        self.selecionandoJogador = 1;
-
-        self.textoPrincipal.after(250, self.__contadorParaBotao, start_time)
+    
+        self.selecionandoJogador = 0
+        self.textoPrincipal.after(250, self.__setSelecionandoJogador)
+        self.textoPrincipal.after(500, self.__contadorParaBotao, start_time)
 
         #self.textoPrincipal.after(250, self.__respondeAutor, botao2)
 

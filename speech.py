@@ -39,6 +39,7 @@ def toca_musica(nome, duracao):
     mixer.music.play(start=random.randint(0,int(duracao)-10))
     time.sleep(8)
     mixer.music.stop()
+    return 1
 
 
 # Funcao responsavel por ouvir e reconhecer a fala
