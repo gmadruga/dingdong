@@ -61,6 +61,7 @@ def ouvir_microfone():
         except sr.UnknownValueError:
             print("Não entendi")
             return ""
+        print('você disse: '+frase)
         return frase
 
 def musica_correta():

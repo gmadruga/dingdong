@@ -472,7 +472,8 @@ class JanelaBase():
         jogadorQueApertouOBotao
         ):
         tituloFalado = speech.ouvir_microfone()
-        acertou = self.__checaResposta2jogadores(tituloFalado, self.titulo, numJog, 'titulo')
+
+        acertou = self.__checaResposta2jogadores(tituloFalado, self.titulo, numJog, jogadorQueApertouOBotao,'titulo')
         
         if(numJog!=jogadorQueApertouOBotao):
             self.textoPrincipal.after(250, self.cliqueNext2Jogadores, botaonext)
@@ -509,7 +510,7 @@ class JanelaBase():
         numJog: int = 1,
         ):
         autorFalado = speech.ouvir_microfone()
-        
+
         self.__checaResposta(autorFalado, self.artista, 1)
         self.textoPrincipal.configure(text="Qual o título?")
         self.textoPrincipal.after(250, self.__respondeTitulo, botaonext)
@@ -523,7 +524,7 @@ class JanelaBase():
         ):
         autorFalado = speech.ouvir_microfone()
         
-        acertou = self.__checaResposta2jogadores(autorFalado, self.artista, numJog, 'autor')
+        acertou = self.__checaResposta2jogadores(autorFalado, self.artista, numJog, jogadorQueApertouOBotao, 'Autor')
         if(jogadorQueApertouOBotao != numJog):
             numJogNovo = 3-numJog
             self.textoPrincipal.configure(text="Qual o título?")
@@ -544,6 +545,7 @@ class JanelaBase():
         respostaFalada,
         respostaCorreta,
         numJog: int,
+        jogadorQueApertouOBotao,
         tipoPergunta = 'autor'
     ):
         if(tipoPergunta == 'autor'):
@@ -552,10 +554,16 @@ class JanelaBase():
             pontosGanhos = 2
 
         acertou = False
+
         if(respostaFalada == respostaCorreta):
             speech.musica_correta()
             self.pontos2Jogadores[numJog-1] = self.pontos2Jogadores[numJog-1] + pontosGanhos
-            self.textoAcertouErrou.configure(text=f"Correto!! a resposta é {respostaCorreta},\n jogador {numJog} responda")
+            if(tipoPergunta == 'Autor'):
+                self.textoAcertouErrou.configure(text=f"Correto!! a resposta é {respostaCorreta},\n jogador {numJog} responda")
+            elif(jogadorQueApertouOBotao==numJog):
+                self.textoAcertouErrou.configure(text="Correto!! a resposta é "+str(respostaCorreta)+", \n jogador "+str(numJog)+" responda")
+            else:
+                self.textoAcertouErrou.configure(text="Correto!! a resposta é "+str(respostaCorreta))
             acertou = True
             if(self.pontos2Jogadores[numJog-1] >= 15):
                 self.textoPrincipal.configure(text = "Fim de Jogo")
@@ -566,7 +574,13 @@ class JanelaBase():
                     
         else:
             speech.musica_errada()
-            self.textoAcertouErrou.configure(text=f"Errado!! a resposta é {respostaCorreta},\n jogador {3-numJog} responda")
+            print(tipoPergunta)
+            if(tipoPergunta == 'Autor'):
+                self.textoAcertouErrou.configure(text=f"Errado!! a resposta é {respostaCorreta},\n jogador {3-numJog} responda")
+            elif(jogadorQueApertouOBotao==numJog):
+                self.textoAcertouErrou.configure(text=f"Errado!! a resposta é "+str(respostaCorreta)+", \n jogador "+str(numJog)+" responda")
+            else:
+                self.textoAcertouErrou.configure(text=f"Errado!! a resposta é "+str(respostaCorreta))
             acertou = False
 
         return acertou
